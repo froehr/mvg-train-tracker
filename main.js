@@ -1,7 +1,7 @@
 // jshint -W119
 
 let scriptName = 'TrainTracker';
-let scriptUrl = 'https://raw.githubusercontent.com/froehr/train-tracker/main/TrainTracker.js';
+let scriptUrl = 'https://raw.githubusercontent.com/froehr/train-tracker/main/widget.js';
 
 let modulePath = await downloadModule(scriptName, scriptUrl); // jshint ignore:line
 if (modulePath != null) {

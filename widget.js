@@ -5,11 +5,11 @@
 
 async function main() {
 	let widget = new ListWidget();
-  widget.addText('Widget Text');
- 	let value = (config.runsInWidget) ? Script.setWidget(widget) : await widget.presentSmall();
- 	Script.complete();
+	widget.addText('Widget Text Test');
+	let value = (config.runsInWidget) ? Script.setWidget(widget) : await widget.presentSmall();
+	Script.complete();
 }
 
 module.exports = {
-  main
+	main
 };
