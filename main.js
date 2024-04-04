@@ -1,12 +1,15 @@
-// jshint -W119
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
+// icon-color: blue; icon-glyph: train;
+let param = args.widgetParameter;
 
-let scriptName = 'TrainTracker';
-let scriptUrl = 'https://raw.githubusercontent.com/froehr/train-tracker/main/widget.js';
+let scriptName = 'connections';
+let scriptUrl = 'https://raw.githubusercontent.com/froehr/train-tracker/main/connections.js';
 
 let modulePath = await downloadModule(scriptName, scriptUrl); // jshint ignore:line
 if (modulePath != null) {
   let importedModule = importModule(modulePath);
-  await importedModule.main(); // jshint ignore:line
+  await importedModule.main(param); // jshint ignore:line
 } else {
   console.log('Failed to download new module and could not find any local version.');
 }
@@ -22,7 +25,7 @@ async function downloadModule(scriptName, scriptUrl) {
   let moduleFilename = dayNumber.toString() + '.js';
   let modulePath = fm.joinPath(moduleDir, moduleFilename);
   if (fm.fileExists(modulePath)) {
-    console.log('Module already downlaoded ' + moduleFilename);
+    console.log('Module already downloaded ' + moduleFilename); 
     return modulePath;
   } else {
     let [moduleFiles, moduleLatestFile] = getModuleVersions(scriptName);
