@@ -1,21 +1,9 @@
 // Variables used by Scriptable.
 // jshint -W119
 
-async function main(params) {
-	// params = 'de:09162:1110,de:09162:2';
-	// params = 'de:09187:90024,de:09162:5';
-	// params = 'de:09162:5,de:09187:90024';
-	// params = 'de:09162:1160,de:09162:470';
-
-	if (params == null) {
-		console.log('Please set the origin and destination in widget parameter.')
-		Script.complete();
-		return;
-	}
-
+async function main(widgetParams) {
 	const currentDateTime = new Date();
-	const parsedWidgetParams = parseWidgetParams(params);
-	const currentConnections = await loadConnections(parsedWidgetParams.origin, parsedWidgetParams.destination, currentDateTime);
+	const currentConnections = await loadConnections(widgetParams.originId, widgetParams.destinationId, currentDateTime);
 
 	let widget = new ListWidget();
 	widget.setPadding(10, 0, 0, 0);
@@ -64,11 +52,6 @@ async function main(params) {
 	
 	let value = (config.runsInWidget) ? Script.setWidget(widget) : await widget.presentMedium();
 	Script.complete();
-}
-
-function parseWidgetParams(params) {
-	const paramArray = params.split(',');
-    return {origin: paramArray[0], destination: paramArray[1]}
 }
 
 function sanitizeStationNames(stationName) {
