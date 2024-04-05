@@ -3,6 +3,7 @@
 // icon-color: blue; icon-glyph: train;
 let params = args.widgetParameter;
 
+	params = 'de:09162:2';
 	// params = 'de:09162:1110,de:09162:2';
 	// params = 'de:09187:90024,de:09162:5';
 	// params = 'de:09162:5,de:09187:90024';
@@ -14,24 +15,13 @@ if (params == null) {
 	return;
 }
 
-const parsedWidgetParams = parseWidgetParams(params);
-let scriptName;
-let scriptUrl;
-
-if (typeof parsedWidgetParams.originId !== "undefined" && typeof parsedWidgetParams.destinationId !== "undefined") {
-	scriptName = 'TrainTrackerConnections';
-	scriptUrl = 'https://raw.githubusercontent.com/froehr/train-tracker/main/connections.js';
-}
-
-else if (typeof parsedWidgetParams.originId !== "undefined") {
-	scriptName = 'TrainTrackerDepartures';
-	scriptUrl = 'https://raw.githubusercontent.com/froehr/train-tracker/main/departures.js';
-}
+const scriptName = 'TrainTracker';
+const scriptUrl = 'https://raw.githubusercontent.com/froehr/train-tracker/main/connection.js';
 
 let modulePath = await downloadModule(scriptName, scriptUrl); // jshint ignore:line
 if (modulePath != null) {
 	let importedModule = importModule(modulePath); // jshint ignore:line
-	await importedModule.main(parsedWidgetParams); // jshint ignore:line
+	await importedModule.main(params); // jshint ignore:line
 } else {
 	console.log('Failed to download new module and could not find any local version.');
 }
@@ -94,16 +84,4 @@ function getModuleVersions(scriptName) {
 		}
 	}
 	return [null, null];
-}
-
-function parseWidgetParams(params) {
-	const paramArray = params.split(',');
-
-	if( paramArray.length === 1 ) {
-		return {originId: paramArray[0]}
-	}
-
-	if( paramArray.length === 2 ) {
-		return {originId: paramArray[0], destinationId: paramArray[1]}
-	}
 }
