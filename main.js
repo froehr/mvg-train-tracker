@@ -10,7 +10,7 @@ if (param == null) {
 }
 
 const scriptName = 'TrainTracker';
-const scriptUrl = 'https://raw.githubusercontent.com/froehr/train-tracker/main/widget.js';
+const scriptUrl = 'https://raw.githubusercontent.com/froehr/mvg-train-tracker/main/widget.js';
 
 let modulePath = await downloadModule(scriptName, scriptUrl); // jshint ignore:line
 if (modulePath != null) {
