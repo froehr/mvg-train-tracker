@@ -2,7 +2,7 @@
 
 ![Sample image not found][logo]
 
-[logo]: https://raw.githubusercontent.com/froehr/train-tracker/main/examples.jpeg "Widget Example"
+[logo]: https://raw.githubusercontent.com/froehr/train-tracker/main/examples.png "Widget Example"
 
 
 ## 1 Features
