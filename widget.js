@@ -4,7 +4,7 @@
 const globalMaxLengthPlaceName = 10;
 const gloablMaxNumberTrainChange = 2;
 const globalBackgroundColor = new Color('#364c90');
-const globalMaxNumberOfShownConnections = 5;
+const globalMaxNumberOfShownConnections = 4;
 const globalMaxNumberOfShownDepartures = 12;
 
 const globalMvgApiBaseUrl = 'https://www.mvg.de/api/fib/v2';
@@ -23,23 +23,43 @@ const globalRegularTextStyle = {
     'alignment': 'CENTER'
 }
 
-async function main(params) {
-    const parsedWidgetParams = parseWidgetParams(params);
-    const currentDateTime = new Date();
+async function main(parameterJson) {
+    const functionKey = parameterJson.functionKey;
+    if (typeof functionKey === "undefined") {
+        console.log("Please specify the functionKey.")
+        return;
+    }
 
     // Create empty widget
     let widget = new ListWidget();
     widget.backgroundColor = globalBackgroundColor;
 
-    // Build Connections Widget
-    if (typeof parsedWidgetParams.originId !== "undefined" && typeof parsedWidgetParams.destinationId !== "undefined") {
-        await buildConnectionsWidget(parsedWidgetParams.originId, parsedWidgetParams.destinationId, currentDateTime, widget);
-    }
+    const currentDateTime = new Date();
 
-    // Build Departures Widget
-    else if (typeof parsedWidgetParams.originId !== "undefined") {
-        await buildDepartureWidget(parsedWidgetParams.originId, widget);
+    switch(functionKey) {
+        case 'CON_SINGLE':
+            await buildConnectionsWidget(parameterJson.connection1.originId, parameterJson.connection1.destinationId, currentDateTime, widget);
+            break;
+        case 'CON_DOUBLE':
+            console.log('Not implemented yet.')
+            break;
+        case 'DEP_SINGLE':
+            await buildDepartureWidget(parameterJson.departureId1, widget);
+            break;
+        case 'DEP_DOUBLE':
+            console.log('Not implemented yet.')
+            break;
+        case 'DEP_QUADRUPLE':
+            console.log('Not implemented yet.')
+            break;
+        case 'MES_LINE':
+            console.log('Not implemented yet.')
+            break;
+        default:
+            console.log('Please provide a valid functionKey.')
     }
+    
+    return;
 }
 
 async function buildConnectionsWidget(originId, destinationId, currentDateTime, widget) {

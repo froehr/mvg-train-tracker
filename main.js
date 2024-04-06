@@ -1,9 +1,9 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: blue; icon-glyph: train;
-let params = args.widgetParameter;
+let param = args.widgetParameter;
 
-if (params == null) {
+if (param == null) {
 	console.log('Please set the origin and destination in widget parameter.')
 	Script.complete();
 	return;
@@ -15,7 +15,7 @@ const scriptUrl = 'https://raw.githubusercontent.com/froehr/train-tracker/main/w
 let modulePath = await downloadModule(scriptName, scriptUrl); // jshint ignore:line
 if (modulePath != null) {
 	let importedModule = importModule(modulePath); // jshint ignore:line
-	await importedModule.main(params); // jshint ignore:line
+	await importedModule.main(JSON.parse(param)); // jshint ignore:line
 } else {
 	console.log('Failed to download new module and could not find any local version.');
 }
