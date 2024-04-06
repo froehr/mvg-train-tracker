@@ -86,7 +86,7 @@ The widget needs to know what it is supposted to be displaying. To define that y
 
 #### 3.3.1 Examples for parameter strings
 1. Widget showing one connection
-```
+```json
 {
    "functionKey": "CON_SINGLE",
    "connection1": {
@@ -97,7 +97,7 @@ The widget needs to know what it is supposted to be displaying. To define that y
 ```
 
 2. Widget showing two connections
-```
+```json
 {
    "functionKey": "CON_DOUBLE",
    "connection1": {
@@ -112,7 +112,7 @@ The widget needs to know what it is supposted to be displaying. To define that y
 ```
 
 3. Widget showing the departures at a single station
-```
+```json
 {
    "functionKey": "DEP_SINGLE",
    "departureId1": "de:09162:1110",
@@ -120,7 +120,7 @@ The widget needs to know what it is supposted to be displaying. To define that y
 ```
 
 4. Widget showing the departures at two stations
-```
+```json
 {
    "functionKey": "DEP_DOUBLE",
    "departureId1": "de:09162:2",
@@ -129,7 +129,7 @@ The widget needs to know what it is supposted to be displaying. To define that y
 ```
 
 5. Widget showing the departures at four stations
-```
+```json
 {
    "functionKey": "DEP_DOUBLE",
    "departureId1": "de:09162:2",
