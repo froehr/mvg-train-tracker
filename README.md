@@ -1,10 +1,5 @@
 # MVG iOS Widget based on Scriptable
 
-![Sample image not found][logo]
-
-[logo]: https://raw.githubusercontent.com/froehr/train-tracker/main/examples.png "Widget Example"
-
-
 ## 1 Features
 
 1. Show next connections between two stations in MVG area
@@ -174,3 +169,7 @@ After the preparation step and creating your parameter string the widget can be 
 
 ## 4. Feedback
 If you have feedback of any kind or ideas for new features please open an issue and describe what you like to see. I would also appreciate feedback how it runs on your type of iPhone as I only have an iPhone 13 mini and can't test on other screen sizes.
+
+![Sample image not found][logo]
+
+[logo]: https://raw.githubusercontent.com/froehr/train-tracker/main/examples.png "Widget Example"
