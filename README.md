@@ -89,10 +89,12 @@ The widget needs to know what it is supposted to be displaying. To define that y
 ```json
 {
    "functionKey": "CON_SINGLE",
-   "connection1": {
-      "originId": "de:09162:1110",
-      "destinationId": "de:09162:2"
-   }
+   "connections" : [
+      {
+         "originId": "de:09162:1110",
+         "destinationId": "de:09162:2"
+      }
+   ]
 }
 ```
 
@@ -100,14 +102,16 @@ The widget needs to know what it is supposted to be displaying. To define that y
 ```json
 {
    "functionKey": "CON_DOUBLE",
-   "connection1": {
-      "originId": "de:09162:1110",
-      "destinationId": "de:09162:2"
-   },
-   "connnection2": {
-      "originId": "de:09162:2",
-      "destinationId": "de:09162:1110"
-   }
+   "connections" : [
+      {
+         "originId": "de:09162:1110",
+         "destinationId": "de:09162:2"
+      },
+      {
+         "originId": "de:09162:2",
+         "destinationId": "de:09162:1110"
+      }
+   ]
 }
 ```
 

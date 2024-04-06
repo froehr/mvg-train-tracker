@@ -38,7 +38,7 @@ async function main(parameterJson) {
 
     switch(functionKey) {
         case 'CON_SINGLE':
-            await buildConnectionsWidget(parameterJson.connection1.originId, parameterJson.connection1.destinationId, currentDateTime, widget);
+            await buildConnectionsWidget(parameterJson.connections[0].originId, parameterJson.connections[0].destinationId, currentDateTime, widget);
             break;
         case 'CON_DOUBLE':
             console.log('Not implemented yet.')
