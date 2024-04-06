@@ -1,5 +1,9 @@
 # MVG iOS Widget based on Scriptable
 
+This scriptable based iOS widget gives you the opportunity to have your most important MVG (Münchner Verkehrsgesellschaft) always available and up to date so that you can quickly check when the next Bus, UBahn, SBahn or Tram leaves.
+
+The development is ongoing so drop me a note if you have ideas for future changes.
+
 ## 1 Features
 
 1. Show next connections between two stations in MVG area
