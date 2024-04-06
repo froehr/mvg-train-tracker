@@ -23,7 +23,6 @@ The preparation step only needs to be done once. Afterwards the widget can be us
    app: https://apps.apple.com/de/app/scriptable/id1405459188
 
 1. Take your iPhone and go to:
-
    https://raw.githubusercontent.com/froehr/train-tracker/main/main.js
 
    This is the code for the widget to run on your phone.
