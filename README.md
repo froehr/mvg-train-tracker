@@ -2,7 +2,7 @@
 
 ![Sample image not found][logo]
 
-[logo]: https://raw.githubusercontent.com/froehr/boulderwelt/main/docu/widget-sampsle.jpeg "Widget Sample"
+[logo]: https://raw.githubusercontent.com/froehr/train-tracker/main/examples.jpeg "Widget Example"
 
 
 ## 1 Features
