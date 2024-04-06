@@ -140,8 +140,7 @@ The widget needs to know what it is supposted to be displaying. To define that y
       "de:09162:2",
       "de:09162:13",
       "de:09162:524"
-   ],
-   
+   ]
 }
 ```
 ### 3.4 Adding the widget to the iOS homescreen
