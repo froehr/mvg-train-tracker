@@ -3,12 +3,6 @@
 // icon-color: blue; icon-glyph: train;
 let params = args.widgetParameter;
 
-	// params = 'de:09162:2';
-	// params = 'de:09162:1110,de:09162:2';
-	// params = 'de:09187:90024,de:09162:5';
-	// params = 'de:09162:5,de:09187:90024';
-	// params = 'de:09162:1160,de:09162:470';
-
 if (params == null) {
 	console.log('Please set the origin and destination in widget parameter.')
 	Script.complete();
