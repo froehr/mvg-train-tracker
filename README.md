@@ -77,8 +77,6 @@ To specify a station to use it in this widget you need the global identifier tha
 ### 3.3 Preparing the configuration for the widget
 The widget needs to know what it is supposted to be displaying. To define that you need to set a **parameter string** in its configuration. This step is explained in section 3.4. First we need to create this parameter string. The format of this string is JSON.
 
-
-
 #### 3.3.1 Examples for parameter strings
 1. Widget showing one connection
 ```json
