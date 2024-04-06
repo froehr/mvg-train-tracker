@@ -44,7 +44,7 @@ async function main(parameterJson) {
             console.log('Not implemented yet.')
             break;
         case 'DEP_SINGLE':
-            await buildDepartureWidget(parameterJson.departureId1, widget);
+            await buildDepartureWidget(parameterJson.departureIds[0], widget);
             break;
         case 'DEP_DOUBLE':
             console.log('Not implemented yet.')

@@ -115,7 +115,9 @@ The widget needs to know what it is supposted to be displaying. To define that y
 ```json
 {
    "functionKey": "DEP_SINGLE",
-   "departureId1": "de:09162:1110",
+   "departureIds": [
+      "de:09162:1110"
+   ],
 }
 ```
 
@@ -123,19 +125,24 @@ The widget needs to know what it is supposted to be displaying. To define that y
 ```json
 {
    "functionKey": "DEP_DOUBLE",
-   "departureId1": "de:09162:2",
-   "departureId2": "de:09162:1110"
+   "departureIds": [
+      "de:09162:1110",
+      "de:09162:2"
+   ]
 }
 ```
 
 5. Widget showing the departures at four stations
 ```json
 {
-   "functionKey": "DEP_DOUBLE",
-   "departureId1": "de:09162:2",
-   "departureId2": "de:09162:13",
-   "departureId4": "de:09162:2",
-   "departureId4": "de:09162:524"
+   "functionKey": "DEP_QUADRUPLE",
+   "departureIds": [
+      "de:09162:1110",
+      "de:09162:2",
+      "de:09162:13",
+      "de:09162:524"
+   ],
+   
 }
 ```
 ### 3.4 Adding the widget to the iOS homescreen
