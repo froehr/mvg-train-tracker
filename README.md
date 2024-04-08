@@ -52,7 +52,7 @@ There are different widget sizes that work but not all functionality is availabl
 
 | Widget Size | Available on | Single Connection | Double Connection | Single Departure | Double Departure | Four Departures | Line Messages |
 | :---------- | :----------- | :---------------: | :---------------: | :--------------: | :--------------: | :-------------: | :-----------: |
-| Small       | iPhone, iPad | ❌                | ❌                | ❌                | ❌               | ❌               | ❌            |
+| Small       | iPhone, iPad | ❌                | ❌                | coming soon      | ❌               | ❌               | ❌            |
 | Medium      | iPhone, iPad | ✅                | ❌                | ✅                | coming soon      | ❌               | ❌            |
 | Large       | iPhone, iPad | ✅                | coming soon       | ✅                | coming soon     | coming soon      | ❌            |
 | Extra Large | iPad         | ✅                | coming soon       | ✅                | coming soon      | coming soon     | coming soon   |
