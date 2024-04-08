@@ -50,12 +50,12 @@ There are three decisions you have to make:
 #### 3.2.1 Widget size
 There are different widget sizes that work but not all functionality is available in all sizes due to size constraints.
 
-| Widget-Size | Available on | Single Connection | Double Connection | Single Departure | Double Departure | Four Departures | Line Messages |
+| Widget Size | Available on | Single Connection | Double Connection | Single Departure | Double Departure | Four Departures | Line Messages |
 | :---------- | :----------- | :---------------: | :---------------: | :--------------: | :--------------: | :-------------: | :-----------: |
 | Small       | iPhone, iPad | ❌                | ❌                | ❌                | ❌               | ❌               | ❌            |
 | Medium      | iPhone, iPad | ✅                | ❌                | ✅                | coming soon      | ❌               | ❌            |
 | Large       | iPhone, iPad | ✅                | coming soon       | ✅                | coming soon     | coming soon      | ❌            |
-| Extra Large | iPad         | ✅                | ✅                | ✅                | coming soon      | coming soon     | coming soon   |
+| Extra Large | iPad         | ✅                | coming soon       | ✅                | coming soon      | coming soon     | coming soon   |
 
 #### 3.2.2 Widget Content
 As already presented above there are different things a widget can show. These are the possibilities:
