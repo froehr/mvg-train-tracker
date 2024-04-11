@@ -52,22 +52,19 @@ There are different widget sizes that work but not all functionality is availabl
 
 | Widget Size | Available on | Single Connection | Double Connection | Single Departure | Double Departure | Four Departures | Line Messages |
 | :---------- | :----------- | :---------------: | :---------------: | :--------------: | :--------------: | :-------------: | :-----------: |
-| Small       | iPhone, iPad | ❌                | ❌                | coming soon      | ❌               | ❌               | ❌            |
-| Medium      | iPhone, iPad | ✅                | ❌                | ✅                | coming soon      | ❌               | ❌            |
-| Large       | iPhone, iPad | ✅                | coming soon       | ✅                | coming soon     | coming soon      | ❌            |
-| Extra Large | iPad         | ✅                | coming soon       | ✅                | coming soon      | coming soon     | coming soon   |
+| Small       | iPhone, iPad | ❌                | ❌                | ✅                | ❌               | ❌               | ❌            |
+| Medium      | iPhone, iPad | ✅                | ❌                | ✅                | ✅               | ❌               | ❌            |
+| Large       | iPhone, iPad | ✅                | coming soon       | ✅                | ✅               | ✅              | ❌            |
+| Extra Large | iPad         | ✅                | coming soon       | ✅                | ✅               | ✅              | coming soon   |
 
 #### 3.2.2 Widget Content
 As already presented above there are different things a widget can show. These are the possibilities:
 
-| Name              | Function Key  | Explanation                                                                       | Implemented |
-| :---------------  | :-----------  | :-------------------------------------------------------------------------------- | :---------: |
-| Single Connection | CON_SINGLE    | Showing the next connections between two defined stations.                        | ✅          |
-| Double Connection | CON_DOUBLE    | Showing the next connections between two sets of defined station in a 2x1 raster. | ❌          |
-| Single Departure  | DEP_SINGLE    | Showing the next departures starting from a defined station.                      | ✅          |
-| Double Departure  | DEP_DOUBLE    | Showing the next departures starting from two defined stations in a 1x2 raster.   | ❌          |
-| Four Departures   | DEP_QUADRUPLE | Showing the next departures starting from four defined stations in a 2x2 raster.  | ❌          |
-| Line Messages     | MES_LINE      | Showing messages related to as specific line.                                     | ❌          |
+| Name          | Function Key  | Explanation                                                  | Implemented | 
+|:------------- | :-----------  |:------------------------------------------------------------ | :---------: |
+| Connection    | CONNECTION    | Showing the next connections between two defined stations.   | ✅          |
+| Departure     | DEPARTURE     | Showing the next departures starting from a defined station. | ✅          |
+| Line Messages | MESSAGE       | Showing messages related to as specific line.                | ❌          |
 
 #### 3.2.3 Widget Stations
 To specify a station to use it in this widget you need the global identifier that the MVG uses to tag their stations. To get the global identifier for your station follow these steps:
@@ -78,6 +75,9 @@ To specify a station to use it in this widget you need the global identifier tha
 
 1. Repeat this process for as many stations as you need for your widget setup.
 
+#### 3.2.4 Transportation Types
+It is possible to limit the types of transportation for departures and connections. If you don't specify anything all transportation types will be shown in the results. The possibilities to filter for are BAHN, UBAHN, TRAM, SBAHN, BUS and REGIONAL_BUS.
+
 ### 3.3 Preparing the configuration for the widget
 The widget needs to know what it is supposted to be displaying. To define that you need to set a **parameter string** in its configuration. This step is explained in section 3.4. First we need to create this parameter string. The format of this string is JSON.
 
@@ -85,11 +85,12 @@ The widget needs to know what it is supposted to be displaying. To define that y
 1. Widget showing one connection
 ```json
 {
-   "functionKey": "CON_SINGLE",
+   "functionKey": "CONNECTION",
    "connections" : [
       {
          "originId": "de:09162:1110",
-         "destinationId": "de:09162:2"
+         "destinationId": "de:09162:2",
+         "transportationTypeFilter": "UBAHN,TRAM,SBAHN"
       }
    ]
 }
@@ -98,11 +99,12 @@ The widget needs to know what it is supposted to be displaying. To define that y
 2. Widget showing two connections
 ```json
 {
-   "functionKey": "CON_DOUBLE",
+   "functionKey": "CONNECTION",
    "connections" : [
       {
          "originId": "de:09162:1110",
-         "destinationId": "de:09162:2"
+         "destinationId": "de:09162:2",
+         "transportationTypeFilter": "UBAHN,TRAM,SBAHN"
       },
       {
          "originId": "de:09162:2",
@@ -115,20 +117,28 @@ The widget needs to know what it is supposted to be displaying. To define that y
 3. Widget showing the departures at a single station
 ```json
 {
-   "functionKey": "DEP_SINGLE",
-   "departureIds": [
-      "de:09162:1110"
-   ],
+   "functionKey": "DEPARTURE",
+   "departures": [
+      {
+         "originId": "de:09162:2",
+         "transportationTypeFilter": "UBAHN,TRAM,SBAHN"
+      }
+   ]
 }
 ```
 
 4. Widget showing the departures at two stations
 ```json
 {
-   "functionKey": "DEP_DOUBLE",
-   "departureIds": [
-      "de:09162:1110",
-      "de:09162:2"
+   "functionKey": "DEPARTURE",
+   "departures": [
+      {
+         "originId": "de:09162:1110",
+         "transportationTypeFilter": "BAHN,UBAHN,TRAM,SBAHN,BUS,REGIONAL_BUS"
+      },
+      {
+         "originId": "de:09162:2",
+      }
    ]
 }
 ```
@@ -136,12 +146,23 @@ The widget needs to know what it is supposted to be displaying. To define that y
 5. Widget showing the departures at four stations
 ```json
 {
-   "functionKey": "DEP_QUADRUPLE",
-   "departureIds": [
-      "de:09162:1110",
-      "de:09162:2",
-      "de:09162:13",
-      "de:09162:524"
+   "functionKey": "DEPARTURE",
+   "departures": [
+      {
+         "originId": "de:09162:1110",
+         "transportationTypeFilter": "BAHN,UBAHN,TRAM,SBAHN,BUS,REGIONAL_BUS"
+      },
+      {
+         "originId": "de:09162:2",
+         "transportationTypeFilter": "BAHN,UBAHN,TRAM"
+      },
+      {
+         "originId": "de:09162:13",
+         "transportationTypeFilter": "BAHN,BUS,REGIONAL_BUS"
+      },
+      {
+         "originId": "de:09162:524"
+      }
    ]
 }
 ```

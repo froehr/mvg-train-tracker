@@ -1,11 +1,18 @@
-// Variables used by Scriptable.
 // jshint -W119
+// Variables used by Scriptable.
 
 const globalMaxLengthPlaceName = 10;
 const gloablMaxNumberTrainChange = 2;
 const globalBackgroundColor = new Color('#364c90');
-const globalMaxNumberOfShownConnections = 4;
-const globalMaxNumberOfShownDepartures = 12;
+
+const globalHeadlineSpacerSize = 4;
+const globalColumnSpacerSize = 10;
+const globalRowSpacerSize = 8;
+
+const globalMaxLines1x1Departures = 12;
+const globalMaxLines2x1Departures = 24;
+const globalMaxLines1x2Connections = 12;
+const globalMaxLines2x2Connections = 8;
 
 const globalMvgApiBaseUrl = 'https://www.mvg.de/api/fib/v2';
 
@@ -30,164 +37,94 @@ async function main(parameterJson) {
         return;
     }
 
+    // Check in what size the widget will be presented to adjust the content to it
+    let widgetSize = (config.runsInWidget) ? config.widgetFamily : 'medium';
+
     // Create empty widget
     let widget = new ListWidget();
     widget.backgroundColor = globalBackgroundColor;
 
+    let stackRaster;
     const currentDateTime = new Date();
 
     switch(functionKey) {
-        case 'CON_SINGLE':
-            await buildConnectionsWidget(parameterJson.connections[0].originId, parameterJson.connections[0].destinationId, currentDateTime, widget);
+        case 'CONNECTION':
+            stackRaster = buildStackRaster(widget, widgetSize, functionKey, parameterJson.connections.length, stackRaster);
+            await buildConnectionsWidget(parameterJson.connections, widget, currentDateTime, stackRaster);
             break;
-        case 'CON_DOUBLE':
-            console.log('Not implemented yet.')
+        case 'DEPARTURE':
+            stackRaster = buildStackRaster(widget, widgetSize, functionKey, parameterJson.departures.length);
+            await buildDepartureWidget(parameterJson.departures, widget, stackRaster);
             break;
-        case 'DEP_SINGLE':
-            await buildDepartureWidget(parameterJson.departureIds[0], widget);
-            break;
-        case 'DEP_DOUBLE':
-            console.log('Not implemented yet.')
-            break;
-        case 'DEP_QUADRUPLE':
-            console.log('Not implemented yet.')
-            break;
-        case 'MES_LINE':
-            console.log('Not implemented yet.')
+        case 'MESSAGE':
+            console.log('Not implemented yet.');
             break;
         default:
-            console.log('Please provide a valid functionKey.')
+            console.log('Please provide a valid functionKey.');
     }
-    
     return;
 }
 
-async function buildConnectionsWidget(originId, destinationId, currentDateTime, widget) {
-    // Load origin and destination station from MVG API to show name in heading
-    const originStation = await loadStation(originId);
-    const destinationStation = await loadStation(destinationId);
-    
-    // Add headline for Widget
-    const headingStack = widget.addStack()
-    let headingText = headingStack.addText('Verbindungen ' + sanitizeStationNames(originStation.name) + ' → ' + sanitizeStationNames(destinationStation.name));
-    setTextStyle(headingText, globalHeadingTextStyle);
-    widget.addSpacer(4);
-    
-    // Build container stack for connections data
-    const connectionsContainerStack = widget.addStack();
-    connectionsContainerStack.layoutVertically();
-    connectionsContainerStack.spacing = 7;
-
-    // Load connections from MVG API
-    const currentConnections = await loadConnections(originId, destinationId, currentDateTime);
-    let addedConnectionsCounter = 0;
-
-    // Iterate through all connections
-    currentConnections.forEach(connection => {
+async function buildConnectionsWidget(connections, widget, currentDateTime, stackRaster) {
+    for (let [index, connection] of connections.entries()) {
+        const rasterPart = stackRaster[index];
+        const originId = connection.originId;
+        const destinationId = connection.destinationId;
+        const transportationTypeFilter = destinationId.transportationTypeFilter;
         
-        // Limit the number of connections to fit on screen
-        if (addedConnectionsCounter >= globalMaxNumberOfShownConnections) {
-            return;
-        }
-
-        // Exclude conncetions with too many train changes
-        if(connection.parts.length > gloablMaxNumberTrainChange) {
-            return;
-        }
-
-        var stack = connectionsContainerStack.addStack();
-        stack.spacing = 2;
+        // Load origin and destination station from MVG API to show name in heading
+        const originStation = await loadStation(originId);
+        const destinationStation = await loadStation(destinationId);
         
-        // Prepare connections so that it can be displayed easily
-        const preparedConnection = prepareConnection(connection);
+        // Add headline for Widget
+        const headingStack = rasterPart.headline;
+        let headingText = headingStack.addText('Verbindungen ' + sanitizeStationName(originStation.name) + ' → ' + sanitizeStationName(destinationStation.name));
+        setTextStyle(headingText, globalHeadingTextStyle);
 
-        // Iterate through the parts of this connections
-        preparedConnection.forEach(function(part, idx){
-            let stationText;
-            let lineText;
+        // Load connections from MVG API
+        const connections = await loadConnections(originId, destinationId, currentDateTime, transportationTypeFilter);
+        const preparedConnections = [];
 
-            // Present the first part of the connection
-            if (idx === 0) {
-                stationText = stack.addText(part.place + ' ' + part.departurePlatform + '\n' + part.departureTime + part.departureDelay);
-                stack.addSpacer(5);
-                lineText = stack.addText(part.departureLineLabel + '\n' + part.departureLineDestination);
-                stack.addSpacer(5);
+        connections.forEach(connection => {
+            // Exclude conncetions with too many train changes
+            if(connection.parts.length > gloablMaxNumberTrainChange) {
+                return;
             }
+            preparedConnections.push(prepareConnection(connection))
+        })
 
-            // Present intermediate parts of the connection
-            if (idx > 0 && idx !== preparedConnection.length - 1) {
-                stationText = stack.addText(part.arrivalPlatform + ' ' + part.place + ' ' + part.departurePlatform + '\n' + part.arrivalTime + part.arrivalDelay + ' → ' + part.departureTime + part.departureDelay);
-                stack.addSpacer(5);
-                lineText = stack.addText(part.departureLineLabel + '\n' + part.departureLineDestination);
-                stack.addSpacer(5);
-            }
-
-            // Present the last part of the connection
-            if (idx === preparedConnection.length - 1){
-                stationText = stack.addText(part.arrivalPlatform + ' ' + part.place + '\n' + part.arrivalTime + part.arrivalDelay);
-            }
-
-            // Set styles for the texts that were created
-            setTextStyle(stationText, globalRegularTextStyle);
-            setTextStyle(lineText, globalRegularTextStyle);
+        rasterPart.content.forEach(contentStack => {
+            const connectionsSubset = preparedConnections.splice(0, rasterPart.maxLines);
+            addConnectionsToStack(contentStack, connectionsSubset);
         });
-
-        addedConnectionsCounter++;
-    });
+    }
 
     let value = (config.runsInWidget) ? Script.setWidget(widget) : await widget.presentMedium();
     Script.complete();
 }
 
-async function buildDepartureWidget(originId, widget) {
-    // Load origin station from MVG API to show name in heading
-    const originStation = await loadStation(originId);
-    
-    // Add headline for Widget
-    const headingStack = widget.addStack()
-    let headingText = headingStack.addText('Abfahrten ' + originStation.name);
-    setTextStyle(headingText, globalHeadingTextStyle);
-    widget.addSpacer(10);
+async function buildDepartureWidget(departures, widget, stackRaster) {
+    for (let [index, departure] of departures.entries()) {
+        const rasterPart = stackRaster[index];
+        const originId = departure.originId;
+        const transportationTypeFilter = departure.transportationTypeFilter;
+        
+        // Load origin station from MVG API to show name in heading
+        const originStation = await loadStation(originId);
 
-    // Build container stack with two sub containers next to each other
-    const departuresContainerStack = widget.addStack();
-    const departuresStackLeft = departuresContainerStack.addStack();
-    departuresStackLeft.layoutVertically();
-    departuresStackLeft.spacing = 10;
-    departuresContainerStack.addSpacer(20);
-    const departuresStackRight = departuresContainerStack.addStack();
-    departuresStackRight.layoutVertically();
-    departuresStackRight.spacing = 10;
+        // Add headline for Widget
+        const headingStack = rasterPart.headline;
+        let headingText = headingStack.addText(originStation.name);
+        setTextStyle(headingText, globalHeadingTextStyle);
 
-    // Load departures from MVG API
-    const currentDepartures = await loadDepartures(originId, 10);
+        // Load departures from MVG API
+        const currentDepartures = await loadDepartures(originId, transportationTypeFilter);
 
-    let departuresCounter = 0;
-    currentDepartures.forEach(departure => {
-        // Limit the number of departures to fit on screen
-        if (departuresCounter >= globalMaxNumberOfShownDepartures) {
-            return;
-        }
-
-        // Create new departure Stack on left or right side of the widget
-        let stack;
-        if (departuresCounter < globalMaxNumberOfShownDepartures / 2) {
-            stack = departuresStackLeft.addStack();
-        } else {
-            stack = departuresStackRight.addStack();
-        }
-
-        // Add departureText to show the sanitized data
-        const time = sanitizeDate(departure.realtimeDepartureTime);
-        const platform = sanitizePlatform(departure.platform, departure.transportType);
-        const line = sanitizeLine(departure.label, departure.transportType);
-        const destination = departure.destination;
-        let departureText = stack.addText(time + ' ' + platform + ' ' + line + ' → ' + destination);
-        setTextStyle(departureText, globalRegularTextStyle);
-
-        // Count departure so that max number is not exceeded
-        departuresCounter++;
-    });
+        rasterPart.content.forEach(contentStack => {
+            const departuresSubset = currentDepartures.splice(0, rasterPart.maxLines);
+            addDeparturesToStack(contentStack, departuresSubset);
+        });
+    }
 
     widget.addSpacer();
 
@@ -195,14 +132,193 @@ async function buildDepartureWidget(originId, widget) {
     Script.complete();
 }
 
-function sanitizeStationNames(stationName) {
+function addDeparturesToStack(stack, departures){
+    departures.forEach(departure => {
+        // Add departureText to show the sanitized data
+        const time = sanitizeDate(departure.realtimeDepartureTime);
+        const platform = sanitizePlatform(departure.platform, departure.transportType);
+        const line = sanitizeLine(departure.label, departure.transportType);
+        const destination = sanitizeStationName(departure.destination, 12);
+        let departureText = stack.addText(time + ' ' + platform + ' ' + line + ' → ' + destination);
+        setTextStyle(departureText, globalRegularTextStyle);
+    });
+}
+
+function addConnectionsToStack(connectionsStack, connections) {
+    // Iterate through all connections
+    connections.forEach(connection => {
+        // Iterate through all parts of each connection
+        const stack = connectionsStack.addStack();
+        connection.forEach(function(part, idx){
+            let stationText;
+            let lineText;
+    
+            // Present the first part of the connection
+            if (idx === 0) {
+                stationText = stack.addText(part.place + ' ' + part.departurePlatform + '\n' + part.departureTime + part.departureDelay);
+                stack.addSpacer(5);
+                lineText = stack.addText(part.departureLineLabel + '\n' + part.departureLineDestination);
+                stack.addSpacer(5);
+            }
+    
+            // Present intermediate parts of the connection
+            if (idx > 0 && idx !== connection.length - 1) {
+                stationText = stack.addText(part.arrivalPlatform + ' ' + part.place + ' ' + part.departurePlatform + '\n' + part.arrivalTime + part.arrivalDelay + ' → ' + part.departureTime + part.departureDelay);
+                stack.addSpacer(5);
+                lineText = stack.addText(part.departureLineLabel + '\n' + part.departureLineDestination);
+                stack.addSpacer(5);
+            }
+    
+            // Present the last part of the connection
+            if (idx === connection.length - 1){
+                stationText = stack.addText(part.arrivalPlatform + ' ' + part.place + '\n' + part.arrivalTime + part.arrivalDelay);
+            }
+    
+            // Set styles for the texts that were created
+            setTextStyle(stationText, globalRegularTextStyle);
+            setTextStyle(lineText, globalRegularTextStyle);
+        });
+    })
+    
+}
+
+function buildStackRaster(widget, widgetSize, functionKey, numberOfElements) {
+    const mainStack = widget.addStack();
+    let headline, content, contentLeft, contentRight;
+
+    if (widgetSize == 'small' && functionKey == 'DEPARTURE' && numberOfElements == 1) {
+        ({headline, content} = addHeadlineAndElementStacks(mainStack));
+        return [{headline, 'content': [content], 'maxLines': globalMaxLines1x1Departures}]
+    }    
+    
+    if (widgetSize == 'medium' && functionKey == 'DEPARTURE' && numberOfElements == 1) {
+        ({headline, contentLeft, contentRight} = addHeadlineAndTwoElementStacks(mainStack));
+        return [{headline, 'content': [contentLeft, contentRight], 'maxLines': globalMaxLines1x1Departures}]
+    }
+
+    if (widgetSize == 'medium' && functionKey == 'DEPARTURE' && numberOfElements == 2) {
+        let result = [];
+        for (let i = 0; i < numberOfElements; i++) {
+            ({headline, content} = addHeadlineAndElementStacks(mainStack));
+            result.push({headline, 'content': [content], 'maxLines': globalMaxLines1x1Departures});
+        }
+        return result;
+    }    
+
+    if (widgetSize == 'medium' && functionKey == 'CONNECTION' && numberOfElements == 1) {
+        ({headline, content} = addHeadlineAndElementStacks(mainStack));
+        return [{headline, 'content': [content], 'maxLines': globalMaxLines1x2Connections}]
+    }
+
+    if (widgetSize == 'large' && functionKey == 'DEPARTURE' && numberOfElements == 1) {
+        ({headline, contentLeft, contentRight} = addHeadlineAndTwoElementStacks(mainStack));
+        return [{headline, 'content': [contentLeft, contentRight], 'maxLines': globalMaxLines2x1Departures}]
+    }
+
+    if (widgetSize == 'large' && functionKey == 'DEPARTURE' && numberOfElements == 2) {
+        let result = [];
+        for (let i = 0; i < numberOfElements; i++) {
+            ({headline, content} = addHeadlineAndElementStacks(mainStack));
+            result.push({headline, 'content': [content], 'maxLines': globalMaxLines2x1Departures});
+        }
+        return result;
+    }
+
+    if (widgetSize == 'large' && functionKey == 'DEPARTURE' && numberOfElements == 3) {
+        const leftStack = mainStack.addStack();
+        leftStack.layoutVertically();
+        mainStack.addSpacer(globalRowSpacerSize);
+        const rightStack = mainStack.addStack();
+        rightStack.layoutVertically();
+        let result = [];
+        ({headline, content} = addHeadlineAndElementStacks(leftStack));
+        result.push({headline, 'content': [content], 'maxLines': globalMaxLines2x1Departures});
+        for (let i = 0; i < 2; i++) {
+            ({headline, content} = addHeadlineAndElementStacks(rightStack));
+            result.push({headline, 'content': [content], 'maxLines': globalMaxLines1x1Departures});
+        }
+        return result;
+    }
+
+    if (widgetSize == 'large' && functionKey == 'DEPARTURE' && numberOfElements == 4) {
+        const leftStack = mainStack.addStack();
+        leftStack.layoutVertically();
+        mainStack.addSpacer(globalColumnSpacerSize);
+        const rightStack = mainStack.addStack();
+        rightStack.layoutVertically();
+        let result = [];
+        for (let i = 0; i < 2; i++) {
+            ({headline, content} = addHeadlineAndElementStacks(leftStack));
+            result.push({headline, 'content': [content], 'maxLines': globalMaxLines1x1Departures});
+        }
+        for (let i = 0; i < 2; i++) {
+            ({headline, content} = addHeadlineAndElementStacks(rightStack));
+            result.push({headline, 'content': [content], 'maxLines': globalMaxLines1x1Departures});
+        }
+        return result;
+    }
+
+    if (widgetSize == 'large' && functionKey == 'CONNECTION' && numberOfElements == 1) {
+        ({headline, content} = addHeadlineAndElementStacks(mainStack));
+        return [{headline, 'content': [content], 'maxLines': globalMaxLines2x2Connections}]
+    }
+
+    if (widgetSize == 'large' && functionKey == 'CONNECTION' && numberOfElements == 2) {
+        let result = [];
+        for (let i = 0; i < numberOfElements; i++) {
+            ({headline, content} = addHeadlineAndElementStacks(mainStack));
+            result.push({headline, 'content': [content]});
+        }
+        return result;
+    }
+}
+
+function addHeadlineAndElementStacks(parentStack) {
+    const elementStack = parentStack.addStack();
+    elementStack.layoutVertically();
+    
+    const headline = elementStack.addStack();
+    elementStack.addSpacer(globalHeadlineSpacerSize);
+    
+    const content = elementStack.addStack();
+    content.layoutVertically();
+    elementStack.addSpacer(globalRowSpacerSize);
+
+    return {headline, content};
+}
+
+function addHeadlineAndTwoElementStacks(parentStack) {
+    const elementStack = parentStack.addStack();
+    elementStack.layoutVertically();
+    
+    const headline = elementStack.addStack();
+    elementStack.addSpacer(globalHeadlineSpacerSize);
+    
+    const contentContainer = elementStack.addStack();
+    const contentLeft = contentContainer.addStack();
+    contentLeft.layoutVertically();
+    contentContainer.addSpacer(globalColumnSpacerSize);
+    
+    const contentRight = contentContainer.addStack();
+    contentRight.layoutVertically();
+
+    return {headline, contentLeft, contentRight};
+}
+
+function sanitizeStationName(stationName, maxLength) {
     let sanitizedStationName = stationName;
 
     sanitizedStationName = sanitizedStationName.replace(/München,/g,'MUC');
     sanitizedStationName = sanitizedStationName.replace(/München/g,'MUC');
     sanitizedStationName = sanitizedStationName.replace(/Bahnhof/g,'B.');
     sanitizedStationName = sanitizedStationName.replace(/bahnhof/g,'b.');
-    sanitizedStationName = sanitizedStationName.substring(0, globalMaxLengthPlaceName);
+    sanitizedStationName = sanitizedStationName.replace(/via Am Harras U/g,'');
+
+    if(typeof maxLength !== 'undefined') {
+        sanitizedStationName = sanitizedStationName.substring(0, maxLength);
+    } else {
+        sanitizedStationName = sanitizedStationName.substring(0, globalMaxLengthPlaceName);
+    }
     sanitizedStationName.trim();
 
     return sanitizedStationName;
@@ -289,16 +405,16 @@ function prepareConnection(connection) {
 
         // When currentPart !== undefined -> iteration is still inside array
         if (typeof currentPart !== 'undefined') {
-            part.place = sanitizeStationNames(currentPart.from.name);
+            part.place = sanitizeStationName(currentPart.from.name);
             part.departurePlatform = sanitizePlatform(currentPart.from.platform, currentPart.line.transportType);
             part.departureTime = sanitizeDate(currentPart.from.plannedDeparture);
             part.departureDelay = sanitizeDelay(currentPart.from.departureDelayInMinutes);
             part.departureLineLabel = currentPart.line.label;
-            part.departureLineDestination = sanitizeStationNames(currentPart.line.destination);
+            part.departureLineDestination = sanitizeStationName(currentPart.line.destination);
         
             // When currentPart == undefined -> iteration is one step outside of array and can only look at the previous element
         } else {
-            part.place = sanitizeStationNames(previousPart.to.name);
+            part.place = sanitizeStationName(previousPart.to.name);
         }
         result.push(part)
     }
@@ -328,34 +444,28 @@ function setTextStyle(text, style) {
     }
 }
 
-async function loadConnections(origin, destination, currentDateTime) {
-        const url = globalMvgApiBaseUrl + '/connection?originStationGlobalId=' + origin + '&destinationStationGlobalId=' + destination + '&routingDateTime=' + currentDateTime.toISOString() + '&routingDateTimeIsArrival=false&transportTypes=BAHN,UBAHN,TRAM,SBAHN,BUS,REGIONAL_BUS';
-        const req = new Request(url);
-        return await req.loadJSON();
+async function loadConnections(origin, destination, currentDateTime, transportationTypeFilter) {
+    if (typeof transportationTypeFilter === 'undefined' || transportationTypeFilter === '') {
+        transportationTypeFilter = 'BAHN,UBAHN,TRAM,SBAHN,BUS,REGIONAL_BUS';
+    }
+    const url = globalMvgApiBaseUrl + '/connection?originStationGlobalId=' + origin + '&destinationStationGlobalId=' + destination + '&routingDateTime=' + currentDateTime.toISOString() + '&routingDateTimeIsArrival=false&transportTypes=' + transportationTypeFilter;
+    const req = new Request(url);
+    return await req.loadJSON();
 }
 
-async function loadDepartures(origin, limit) {
-        const url = globalMvgApiBaseUrl + '/departure?globalId=' + origin + '&limit=' + limit;
-        const req = new Request(url);
-        return await req.loadJSON();
+async function loadDepartures(origin, transportationTypeFilter) {
+    if (typeof transportationTypeFilter === 'undefined' || transportationTypeFilter === '') {
+        transportationTypeFilter = 'BAHN,UBAHN,TRAM,SBAHN,BUS,REGIONAL_BUS';
+    }
+    const url = globalMvgApiBaseUrl + '/departure?globalId=' + origin + '&transportTypes=' + transportationTypeFilter;
+    const req = new Request(url);
+    return await req.loadJSON();
 }
 
 async function loadStation(stationId) {
-        const url = globalMvgApiBaseUrl + '/station/' + stationId;
-        const req = new Request(url);
-        return await req.loadJSON();
-}
-
-function parseWidgetParams(params) {
-    const paramArray = params.split(',');
-
-    if( paramArray.length === 1 ) {
-        return {originId: paramArray[0]}
-    }
-
-    if( paramArray.length === 2 ) {
-        return {originId: paramArray[0], destinationId: paramArray[1]}
-    }
+    const url = globalMvgApiBaseUrl + '/station/' + stationId;
+    const req = new Request(url);
+    return await req.loadJSON();
 }
 
 module.exports = {

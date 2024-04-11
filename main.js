@@ -4,7 +4,7 @@
 let param = args.widgetParameter;
 
 if (param == null) {
-    console.log('Please set the origin and destination in widget parameter.')
+    console.log('Please set the widget parameter.')
     Script.complete();
     return;
 }
