@@ -137,7 +137,7 @@ The widget needs to know what it is supposted to be displaying. To define that y
          "transportationTypeFilter": "BAHN,UBAHN,TRAM,SBAHN,BUS,REGIONAL_BUS"
       },
       {
-         "originId": "de:09162:2",
+         "originId": "de:09162:2"
       }
    ]
 }
