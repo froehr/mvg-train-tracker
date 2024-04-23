@@ -9,8 +9,8 @@ const globalHeadlineSpacerSize = 4;
 const globalColumnSpacerSize = 10;
 const globalRowSpacerSize = 8;
 
-const globalMaxLines1x1Departures = 12;
-const globalMaxLines2x1Departures = 24;
+const globalMaxLines1x1Departures = 9;
+const globalMaxLines2x1Departures = 18;
 const globalMaxLines1x2Connections = 12;
 const globalMaxLines2x2Connections = 8;
 
@@ -23,7 +23,14 @@ const globalHeadingTextStyle = {
     'alignment': 'LEFT'
 }
 
-const globalRegularTextStyle = {
+const globalRegularDepartureTextStyle = {
+    'color': Color.white(),
+    'font': Font.regularMonospacedSystemFont(11),
+    'lineLimit': 2,
+    'alignment': 'CENTER'
+}
+
+const globalRegularConnectionTextStyle = {
     'color': Color.white(),
     'font': Font.regularMonospacedSystemFont(8),
     'lineLimit': 2,
@@ -140,7 +147,7 @@ function addDeparturesToStack(stack, departures){
         const line = sanitizeLine(departure.label, departure.transportType);
         const destination = sanitizeStationName(departure.destination, 12);
         let departureText = stack.addText(time + ' ' + platform + ' ' + line + ' → ' + destination);
-        setTextStyle(departureText, globalRegularTextStyle);
+        setTextStyle(departureText, globalRegularDepartureTextStyle);
     });
 }
 
@@ -175,8 +182,8 @@ function addConnectionsToStack(connectionsStack, connections) {
             }
     
             // Set styles for the texts that were created
-            setTextStyle(stationText, globalRegularTextStyle);
-            setTextStyle(lineText, globalRegularTextStyle);
+            setTextStyle(stationText, globalRegularConnectionTextStyle);
+            setTextStyle(lineText, globalRegularConnectionTextStyle);
         });
     })
     
@@ -201,6 +208,7 @@ function buildStackRaster(widget, widgetSize, functionKey, numberOfElements) {
         for (let i = 0; i < numberOfElements; i++) {
             ({headline, content} = addHeadlineAndElementStacks(mainStack));
             result.push({headline, 'content': [content], 'maxLines': globalMaxLines1x1Departures});
+            mainStack.addSpacer(globalColumnSpacerSize);
         }
         return result;
     }    
@@ -220,6 +228,7 @@ function buildStackRaster(widget, widgetSize, functionKey, numberOfElements) {
         for (let i = 0; i < numberOfElements; i++) {
             ({headline, content} = addHeadlineAndElementStacks(mainStack));
             result.push({headline, 'content': [content], 'maxLines': globalMaxLines2x1Departures});
+            mainStack.addSpacer(globalColumnSpacerSize);
         }
         return result;
     }
@@ -233,6 +242,7 @@ function buildStackRaster(widget, widgetSize, functionKey, numberOfElements) {
         let result = [];
         ({headline, content} = addHeadlineAndElementStacks(leftStack));
         result.push({headline, 'content': [content], 'maxLines': globalMaxLines2x1Departures});
+        mainStack.addSpacer(globalColumnSpacerSize);
         for (let i = 0; i < 2; i++) {
             ({headline, content} = addHeadlineAndElementStacks(rightStack));
             result.push({headline, 'content': [content], 'maxLines': globalMaxLines1x1Departures});
@@ -277,6 +287,7 @@ function addHeadlineAndElementStacks(parentStack) {
     const elementStack = parentStack.addStack();
     elementStack.layoutVertically();
     
+    elementStack.addSpacer(5);
     const headline = elementStack.addStack();
     elementStack.addSpacer(globalHeadlineSpacerSize);
     
@@ -291,6 +302,7 @@ function addHeadlineAndTwoElementStacks(parentStack) {
     const elementStack = parentStack.addStack();
     elementStack.layoutVertically();
     
+    elementStack.addSpacer(5);
     const headline = elementStack.addStack();
     elementStack.addSpacer(globalHeadlineSpacerSize);
     
