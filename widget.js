@@ -14,7 +14,7 @@ const globalMaxLines2x1Departures = 18;
 const globalMaxLines1x2Connections = 12;
 const globalMaxLines2x2Connections = 8;
 
-const globalMvgApiBaseUrl = 'https://www.mvg.de/api/fib/v2';
+const globalMvgApiBaseUrl = 'https://www.mvg.de/api/bgw-pt/v3';
 
 const globalHeadingTextStyle = {
     'color': Color.white(),
@@ -57,6 +57,7 @@ async function main(parameterJson) {
     switch(functionKey) {
         case 'CONNECTION':
             stackRaster = buildStackRaster(widget, widgetSize, functionKey, parameterJson.connections.length, stackRaster);
+
             await buildConnectionsWidget(parameterJson.connections, widget, currentDateTime, stackRaster);
             break;
         case 'DEPARTURE':
@@ -78,11 +79,11 @@ async function buildConnectionsWidget(connections, widget, currentDateTime, stac
         const originId = connection.originId;
         const destinationId = connection.destinationId;
         const transportationTypeFilter = destinationId.transportationTypeFilter;
-        
+
         // Load origin and destination station from MVG API to show name in heading
         const originStation = await loadStation(originId);
+
         const destinationStation = await loadStation(destinationId);
-        
         // Add headline for Widget
         const headingStack = rasterPart.headline;
         let headingText = headingStack.addText('Verbindungen ' + sanitizeStationName(originStation.name) + ' → ' + sanitizeStationName(destinationStation.name));
@@ -91,7 +92,6 @@ async function buildConnectionsWidget(connections, widget, currentDateTime, stac
         // Load connections from MVG API
         const connections = await loadConnections(originId, destinationId, currentDateTime, transportationTypeFilter);
         const preparedConnections = [];
-
         connections.forEach(connection => {
             // Exclude conncetions with too many train changes
             if(connection.parts.length > gloablMaxNumberTrainChange) {
@@ -412,9 +412,9 @@ function prepareConnection(connection) {
             part.arrivalTime = sanitizeDate(previousPart.to.plannedDeparture);
             part.arrivalDelay = sanitizeDelay(previousPart.to.arrivalDelayInMinutes);
         }
-
+        
         const currentPart = connection.parts[i];
-
+        
         // When currentPart !== undefined -> iteration is still inside array
         if (typeof currentPart !== 'undefined') {
             part.place = sanitizeStationName(currentPart.from.name);
@@ -460,7 +460,7 @@ async function loadConnections(origin, destination, currentDateTime, transportat
     if (typeof transportationTypeFilter === 'undefined' || transportationTypeFilter === '') {
         transportationTypeFilter = 'BAHN,UBAHN,TRAM,SBAHN,BUS,REGIONAL_BUS';
     }
-    const url = globalMvgApiBaseUrl + '/connection?originStationGlobalId=' + origin + '&destinationStationGlobalId=' + destination + '&routingDateTime=' + currentDateTime.toISOString() + '&routingDateTimeIsArrival=false&transportTypes=' + transportationTypeFilter;
+    const url = globalMvgApiBaseUrl + '/routes?originStationGlobalId=' + origin + '&destinationStationGlobalId=' + destination + '&routingDateTime=' + currentDateTime.toISOString() + '&routingDateTimeIsArrival=false&transportTypes=' + transportationTypeFilter;
     const req = new Request(url);
     return await req.loadJSON();
 }
@@ -469,13 +469,13 @@ async function loadDepartures(origin, transportationTypeFilter) {
     if (typeof transportationTypeFilter === 'undefined' || transportationTypeFilter === '') {
         transportationTypeFilter = 'BAHN,UBAHN,TRAM,SBAHN,BUS,REGIONAL_BUS';
     }
-    const url = globalMvgApiBaseUrl + '/departure?globalId=' + origin + '&transportTypes=' + transportationTypeFilter;
+    const url = globalMvgApiBaseUrl + '/departures?globalId=' + origin + '&transportTypes=' + transportationTypeFilter;
     const req = new Request(url);
     return await req.loadJSON();
 }
 
 async function loadStation(stationId) {
-    const url = globalMvgApiBaseUrl + '/station/' + stationId;
+    const url = 'https://www.mvg.de/.rest/zdm/stations/' + stationId;
     const req = new Request(url);
     return await req.loadJSON();
 }
