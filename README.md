@@ -69,7 +69,7 @@ As already presented above there are different things a widget can show. These a
 #### 3.2.3 Widget Stations
 To specify a station to use it in this widget you need the global identifier that the MVG uses to tag their stations. To get the global identifier for your station follow these steps:
 
-1. Go to https://www.mvg.de/api/fib/v2/location?query=SEARCH_PATTERN and replace SEARCH_PATTERN with the name of the station you are looking for.
+1. Go to https://www.mvg.de/api/bgw-pt/v3/locations?locationTypes=STATION&query=SEARCH_PATTERN and replace SEARCH_PATTERN with the name of the station you are looking for.
 
 1. You will receive a long list with results. Only those which have _type_ set to _STATION_. Easiest way is to search for those by `Crtl+F`. When you have found the station you are looking for copy the _globalId_.
 
